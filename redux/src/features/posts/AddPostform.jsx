@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { postAdded } from "./postSlice";
+import { addNewPost } from "./postSlice";
 import { selectAllUsers } from "../users/usersSlice";
 
 const AddPostForm = () => {
@@ -8,6 +8,7 @@ const AddPostForm = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [userId, setUserId] = useState("");
+  const [addRequestStatus, setAddRequestStatus] = useState("idle");
 
   const users = useSelector(selectAllUsers);
 
@@ -15,15 +16,8 @@ const AddPostForm = () => {
   const onContentChanged = (e) => setContent(e.target.value);
   const onAuthorChanged = (e) => setUserId(e.target.value);
 
-  const onSavePostClicked = () => {
-    if (canSave) {
-      dispatch(postAdded(title, content, userId));
-      setTitle("");
-      setContent("");
-      setUserId("");
-    }
-  };
 
+ 
   const userOptions = users.map((user) => (
     <option key={user.id} value={user.id}>
       {user.name}
@@ -31,8 +25,24 @@ const AddPostForm = () => {
   ));
 
   // Only enable save if all required fields are filled
-  const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
+  const canSave =[title, content, userId].every(Boolean) && addRequestStatus === "idle";
+  const onSavePostClicked = () => {
+    if (canSave) {
+      try {
+        setAddRequestStatus("pending");
+        dispatch(addNewPost({ title, content,  userId }))
+        setTitle("");
+        setContent("");
+        setUserId("");
+      } catch (err) {
+        console.error("Failed to save the post: ", err);
+      } finally {
+        setAddRequestStatus("idle");
+      }
+    }
+  };
 
+  
   return (
     <section className="max-w-md mx-auto p-4 bg-white rounded-lg shadow-lg">
       <h2 className="text-2xl font-bold text-center mb-4">Add a New Post</h2>

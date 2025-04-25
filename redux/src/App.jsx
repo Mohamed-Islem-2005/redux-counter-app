@@ -5,11 +5,11 @@ import "./App.css";
 function App() {
   return (
     <div className="app-container">
-      <div className="posts-section">
-        <Posts />
-      </div>
       <div className="form-section">
         <AddPostForm />
+      </div>
+      <div className="posts-section">
+        <Posts />
       </div>
     </div>
   );
